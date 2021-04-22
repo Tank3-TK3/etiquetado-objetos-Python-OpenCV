@@ -7,7 +7,7 @@ def umbra( img1 ):
     img = img1.copy()
     for i in range(0, img.shape[0]):
         for j in range(0, img.shape[1]):
-            if img[i][j] >= 240:
+            if img[i][j] >= 128:
                 img[i][j] = 255
             else:
                 img[i][j] = 0
@@ -76,7 +76,7 @@ def findPixel( img1 ):
     bandera = True
     for i in range( 0 , img.shape[0] ):
         for j in range( 0 , img.shape[0] ):
-            if img[i][j] == 128:
+            if img[i][j] >= 100 and img[i][j] <= border:
                 bandera = False
             if img[i][j] == 0:
                 bandera = True
@@ -121,21 +121,21 @@ def vecinos( img , indexsA ):
     return colonia
 
 def nextPixel( colonia , indexsA ):
-    if colonia[0] == 0 and (colonia[1] == 255 or colonia[1] == 128):
+    if colonia[0] == 0 and (colonia[1] == 255 or colonia[1] == border):
         return [indexsA[0]+1,indexsA[1]-1]
-    if colonia[1] == 0 and (colonia[2] == 255 or colonia[2] == 128):
+    if colonia[1] == 0 and (colonia[2] == 255 or colonia[2] == border):
         return [indexsA[0]+1,indexsA[1]]
-    if colonia[2] == 0 and (colonia[3] == 255 or colonia[3] == 128):
+    if colonia[2] == 0 and (colonia[3] == 255 or colonia[3] == border):
         return [indexsA[0]+1,indexsA[1]+1]
-    if colonia[3] == 0 and (colonia[4] == 255 or colonia[4] == 128):
+    if colonia[3] == 0 and (colonia[4] == 255 or colonia[4] == border):
         return [indexsA[0],indexsA[1]+1]
-    if colonia[4] == 0 and (colonia[5] == 255 or colonia[5] == 128):
+    if colonia[4] == 0 and (colonia[5] == 255 or colonia[5] == border):
         return [indexsA[0]-1,indexsA[1]+1]
-    if colonia[5] == 0 and (colonia[6] == 255 or colonia[6] == 128):
+    if colonia[5] == 0 and (colonia[6] == 255 or colonia[6] == border):
         return [indexsA[0]-1,indexsA[1]]
-    if colonia[6] == 0 and (colonia[7] == 255 or colonia[7] == 128):
+    if colonia[6] == 0 and (colonia[7] == 255 or colonia[7] == border):
         return [indexsA[0]-1,indexsA[1]-1]
-    if colonia[7] == 0 and (colonia[0] == 255 or colonia[0] == 128):
+    if colonia[7] == 0 and (colonia[0] == 255 or colonia[0] == border):
         return [indexsA[0],indexsA[1]-1]
 
 def borde( img1 ):
@@ -145,9 +145,9 @@ def borde( img1 ):
     indexsS.append(indexsA[0])
     indexsS.append(indexsA[1])
     try:
-        while img[indexsS[0]][indexsS[1]] != 128:
+        while img[indexsS[0]][indexsS[1]] != border:
             if img[indexsA[0]][indexsA[1]] != 0:
-                img[indexsA[0]][indexsA[1]] = 128
+                img[indexsA[0]][indexsA[1]] = border
             colonia = vecinos( img , indexsA )
             indexsS = nextPixel( colonia , indexsA )
             indexsA[0] = indexsS[0]
@@ -156,6 +156,15 @@ def borde( img1 ):
         pass
     return img
 
+def etiqueta( img1 ):
+    img = img1.copy()
+    for i in range( 0 , img.shape[0] ):
+        for j in range( 0 , img.shape[0] ):
+            if img[i-1][j] >= 100 and img[i-1][j] <= border and img[i][j] == 255:
+                img[i][j] = img[i-1][j]
+    return img
+
+border = 100
 img1 = cv2.imread( './img/objetos.jpg', 0 )
 img2 = np.zeros( img1.shape , dtype=np.uint8 )
 
@@ -163,14 +172,14 @@ img2 = umbra( img1 )
 
 for i in range(0,10):
     img2 = limpiar( img2 )
-    print(i)
+    print("Limpieza:",i+1)
 
-
-cont=0
 while findPixel(img2) != None:
     img2 = borde( img2 )
-    cont+=1
-    print(cont)
+    border+=1
+    print("Bordes:",border-100)
+
+img2 = etiqueta( img2 )
 
 plt.subplot( 1 , 2 , 1 )
 plt.imshow( img1 , 'gray' )
@@ -193,3 +202,4 @@ for i in range(0,img2.shape[0]):
     string+="\n"
     file.write(string)
 file.close()
+print("<<<Archivo CSV generado correctamente>>>")
