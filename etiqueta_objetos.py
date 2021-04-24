@@ -75,7 +75,7 @@ def findPixel( img1 ):
     img = img1.copy()
     bandera = True
     for i in range( 0 , img.shape[0] ):
-        for j in range( 0 , img.shape[0] ):
+        for j in range( 0 , img.shape[1] ):
             if img[i][j] >= 100 and img[i][j] <= border:
                 bandera = False
             if img[i][j] == 0:
@@ -159,7 +159,7 @@ def borde( img1 ):
 def etiqueta( img1 ):
     img = img1.copy()
     for i in range( 0 , img.shape[0] ):
-        for j in range( 0 , img.shape[0] ):
+        for j in range( 0 , img.shape[1] ):
             if img[i-1][j] >= 100 and img[i-1][j] <= border and img[i][j] == 255:
                 img[i][j] = img[i-1][j]
     return img
